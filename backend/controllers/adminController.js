@@ -1,67 +1,66 @@
-import bcrypt, { hash } from 'bcrypt'
-import { v2 as cloudinary } from "cloudinary"
-import doctorModel from '../models/doctorModel.js'
-import jwt from 'jsonwebtoken'
-import validator from 'validator'
-import appointmentModel from '../models/AppointmentModel.js'
-import userModel from '../models/userModel.js'
+import bcrypt from 'bcryptjs';
+import { v2 as cloudinary } from "cloudinary";
+import doctorModel from '../models/doctorModel.js';
+import jwt from 'jsonwebtoken';
+import validator from 'validator';
+import appointmentModel from '../models/AppointmentModel.js';
+import userModel from '../models/userModel.js';
 
-const addDoctor = async (req,res)=>{
+const addDoctor = async (req, res) => {
     try {
-        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
-        const imageFile = req.file
+        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
+        const imageFile = req.file;
 
-        // checking for all data to add doctor 
-
-        if(!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address){
-            return res.json({success:false,message:"Missing Details"})
+        // Checking for missing data
+        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
+            return res.json({ success: false, message: "Missing Details" });
         }
 
-        //validating email format
-
-        if(!validator.isEmail(email)) {
-            return res.json({success:false,message:"Please enter a valid Email"})
+        // Validating email format
+        if (!validator.isEmail(email)) {
+            return res.json({ success: false, message: "Please enter a valid Email" });
         }
 
-        // validating strong password
-
-        if(!password.len > 8) {
-            return res.json({success:false,message:"Please enter a strong password"})
+        // Validating strong password
+        if (password.length < 8) {
+            return res.json({ success: false, message: "Please enter a strong password with at least 8 characters" });
         }
 
-        // hashing doctor password
+        // Hashing doctor password using bcryptjs
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
 
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
-
-        // upload image to cloudinary
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path,{resource_type:"image"})
-        const imageUrl = imageUpload.secure_url
+        // Upload image to Cloudinary
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+        const imageUrl = imageUpload.secure_url;
 
         const doctorData = {
             name,
             email,
-            image:imageUrl,
-            password:hashedPassword,
+            image: imageUrl,
+            password: hashedPassword,
             speciality,
             degree,
             experience,
             about,
             fees,
-            address:JSON.parse(address),
-            date:Date.now()
-        }
+            address: JSON.parse(address),
+            date: Date.now(),
+        };
 
-        const newDoctor = new doctorModel(doctorData)
-        await newDoctor.save()
+        const newDoctor = new doctorModel(doctorData);
+        await newDoctor.save();
 
-        res.json({success:true,message:"Doctor Added"})
+        res.json({ success: true, message: "Doctor Added" });
 
-        } catch (error) {
-        console.log(error)
-        res.json({success:false,message:error.message})
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
+
+
+
 const loginAdmin = async (req,res) => {
     try {
      const {email,password} = req.body

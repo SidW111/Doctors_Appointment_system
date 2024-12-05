@@ -1,61 +1,65 @@
-import doctorModel from "../models/doctorModel.js"
-import bcrypt, { hash } from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import appointmentModel from "../models/AppointmentModel.js"
+import doctorModel from "../models/doctorModel.js";
+import bcrypt from 'bcryptjs'; // Changed to bcryptjs
+import jwt from 'jsonwebtoken';
+import appointmentModel from "../models/AppointmentModel.js";
 
+// API to toggle doctor availability
+const changeAvailability = async (req, res) => {
+    try {
+        const { docId } = req.body;
 
-const changeAvailability = async (req,res) => {
- try {
-        
-    const {docId} = req.body
+        // Find doctor by ID and toggle availability
+        const docData = await doctorModel.findById(docId);
+        if (!docData) {
+            return res.json({ success: false, message: "Doctor not found" });
+        }
 
-         const docData = await doctorModel.findById(docId)
-         await doctorModel.findByIdAndUpdate(docId,{available: !docData.available})
-        res.json({success:true,message: 'Availability Changed'})
-
+        await doctorModel.findByIdAndUpdate(docId, { available: !docData.available });
+        res.json({ success: true, message: "Availability Changed" });
     } catch (error) {
-       console.log(error)
-       res.json({success:false,message:error.message})  
-  }
- }
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
 
- const doctorList = async (req,res) => {
-   try {
-      const doctors = await doctorModel.find({}).select(['-email','-password']);
-      res.json({success:true,doctors})
-   } catch (error) {
-      console.log(error)
-       res.json({success:false,message:error.message})
-   }
- }
+// API to get a list of all doctors (excluding sensitive data)
+const doctorList = async (req, res) => {
+    try {
+        const doctors = await doctorModel.find({}).select(['-email', '-password']);
+        res.json({ success: true, doctors });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
 
- //API for doctor login
+// API for doctor login
+const loginDoctor = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-const loginDoctor = async (req,res) => {
-   try {
-       const {email,password} = req.body
-       const doctor = await doctorModel.findOne({email})
+        // Find doctor by email
+        const doctor = await doctorModel.findOne({ email });
+        if (!doctor) {
+            return res.json({ success: false, message: "Invalid Credentials" });
+        }
 
-       if (!doctor) {
-           return res.json({success:false,message:'Invalid Credentials'})
-       }
+        // Compare password using bcryptjs
+        const isMatch = bcrypt.compareSync(password, doctor.password);
+        if (isMatch) {
+            // Generate JWT token
+            const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+            res.json({ success: true, token });
+        } else {
+            res.json({ success: false, message: "Invalid Credentials" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: error.message });
+    }
+};
 
-       const isMatch = await bcrypt.compare(password,doctor.password)
 
-       if(isMatch){
-           const token = jwt.sign({id:doctor._id},process.env.JWT_SECRET)
-
-           res.json({success:true,token})
-   } else {
-       res.json({success:false,message:'Invalid Credentials'})
-   }
-
-
-   } catch (error) {
-       console.log(error)
-       res.json({success:false,message:error.message})
-   }
-}
 
 //API to get doctor appointments for doctor panel
 
