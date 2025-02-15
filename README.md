@@ -4,19 +4,24 @@
 The **Doctors Appointment System** is a full-stack web application designed to facilitate seamless **appointment booking** between patients and doctors. The system includes **secure authentication**, **admin controls**, and **real-time scheduling** to enhance efficiency and accessibility.
 
 ## ✨ Features
+- 🛠 **Admin Dashboard** – Dedicated panel for administrators to manage system settings, users, and appointments.
 - 👤 **User Authentication** – Secure login and registration for patients and doctors.
 - 📅 **Appointment Booking** – Easy scheduling and real-time availability updates.
 - 🔍 **Doctor Search** – Find doctors based on specialization and availability.
 - 🏥 **Admin Panel** – Manage users, appointments, and system settings.
 - 📩 **Email Notifications** – Appointment confirmations and reminders.
 - 📊 **Dashboard** – Personalized dashboard for doctors and patients.
+- 🛠 Admin Panel-The admin panel allows administrators to manage users, appointments, and system settings.
 
 ## 🛠 Tech Stack
+- **Admin Panel:** React.js, Node.js, Express.js, MongoDB
 - **Frontend:** React.js, Tailwind CSS
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB
 - **Authentication:** JWT (JSON Web Token)
 - **Hosting & Deployment:** Render / Vercel
+
+
 
 ## 🚀 Installation & Setup
 
@@ -38,6 +43,13 @@ cd frontend
 npm install
 ```
 
+#### Admin Panel
+```sh
+cd admin
+npm install
+```
+
+
 ### 3️⃣ Configure Environment Variables
 Create a `.env` file in the **backend** directory and add:
 ```
@@ -57,7 +69,14 @@ npm start
 cd frontend
 npm start
 ```
+#### Start the Admin Panel
+```sh
+cd admin
+npm start
+```
 
+## 🤝 Contributing
+Contributions are welcome! Feel free to submit issues and pull requests.
 
 ## 📩 Contact
 For queries, contact **Siddhant Waingade** at [siddhantwainngade@gmail.com](mailto:siddhantwainngade@gmail.com)
